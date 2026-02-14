@@ -1,3 +1,12 @@
 
-what is the native sampling rate of the audio in RAVDESS? ANS: 48k
+git commands:
+git add .
+git commit -m ""
+git push
 
+terminal commands:
+# to overwrite the environment.yml file
+conda env export --no-builds > environment.yml
+
+# to overwrite the requirements.txt file
+pip freeze > requirements.txt

@@ -3,7 +3,8 @@ import torch
 import pandas as pd
 
 import matplotlib
-matplotlib.use('Qt5Agg')
+# matplotlib.use('Qt5Agg')
+import src.visualization.plot_settings
 
 import matplotlib.pyplot as plt
 
@@ -12,6 +13,7 @@ import os
 os.environ["CUDA_VISIBLE_DEVICES"] = "3"
 
 from pathlib import Path
+
 
 #path handling using pathlib: make paths absolute relative to this script
 repo_root = Path(__file__).resolve().parents[2]

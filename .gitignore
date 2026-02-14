@@ -5,3 +5,11 @@ data/interim/
 settings.json
 test.py
 
+.vscode
+.DS_store
+
+notes.txt
+
+__pycache__
+
+
