@@ -1,0 +1,3 @@
+
+what is the native sampling rate of the audio in RAVDESS? ANS: 48k
+
