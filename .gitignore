@@ -6,10 +6,10 @@ settings.json
 test.py
 
 .vscode
-.DS_store
-
-notes.txt
-
+.DS_Store
+**/.DS_Store
 __pycache__
+
+
 
 
