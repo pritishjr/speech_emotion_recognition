@@ -1,4 +1,4 @@
-
+#does not output any image but saves.
 import torch
 import pandas as pd
 
@@ -34,14 +34,13 @@ if example_audio_path.exists():
     #using waveshow to visualize the signal:
     plt.figure(figsize=(10, 4))
     librosa.display.waveshow(array, sr=sampling_rate)
-    plt.show()
+    # plt.show()
     #does not show because the gui-backend is 'headless' and not 'Agg' and there
     
-    #saving the file in our repo:
+    #saving the file in our repo: (uncomment)
     # plt.savefig("waveform_example_output.png", dpi=300)
     # plt.close()
     
 else:
     print("Audio file not found.")
     
-

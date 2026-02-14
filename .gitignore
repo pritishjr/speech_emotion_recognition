@@ -1,7 +1,7 @@
 data/raw/
 data/processed/
 data/interim/
-test.ipynb
+/notebooks/test.ipynb
 settings.json
 test.py
 
