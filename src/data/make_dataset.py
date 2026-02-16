@@ -28,7 +28,7 @@ def parsing_labels(sample_path):
     num_parts = sample_name.split('-') #num_parts is returned as a list
     
     if len(num_parts) != 7:
-        raise ValueError(f"Invalid file format. Check the path once again.")
+        return None  #skipping files that don't match RAVDESS format (MUSAN)
     
     #extracting the actor number from the 
     actor_id = int(num_parts[6])
@@ -46,7 +46,7 @@ def parsing_labels(sample_path):
     label_parts = {
         "Modality":  "Audio" if num_parts[0] == '03' else "Video",
         #voice channel taken for this project is purely SPEECH. no SONG.
-        "Emotion" : emotion_mappings,
+        "Emotion" : emotion_mappings[num_parts[2]],
         "Emotional Intensity" : 'Normal' if num_parts[3] == '01' else 'Strong',
         "Statements" : "Kids are talking by the door" if num_parts[4] == '01' else "Dogs are sitting by the door",
         #"Repetition" : (is it even reqd?)
@@ -66,10 +66,9 @@ def main(input_dir, output_dir):
     print("Crawling for audio and video files...")
     
     #crawling and parsing the metadata.
-    for ext in ["*.wav, *.mp4"]: #searches these filetypes in the repo
+    for ext in ["*.wav", "*.mp4"]: #searches these filetypes in the repo
         for sample in raw_path.rglob(ext): 
             #searches the raw path dir in all the directories
-            
             meta = parsing_labels(sample)
             if meta:
                 interim_data.append(meta)
@@ -103,5 +102,6 @@ if __name__ == "__main__":
     
     main(args.input, args.output)
     
+    print("DATASET CREATED.")
     
     
