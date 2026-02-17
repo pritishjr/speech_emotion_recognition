@@ -56,7 +56,8 @@ def main():
     
     #taking the output path
     output_path = Path(args.output)
-    #output_path.mkdir(parents=True, exist_ok=True) #checks if i have the output directory.
+    #output_path.mkdir(parents=True, exist_ok=True) 
+    #checks if i have the output directory.
     
     #taking the metadata
     df = pd.read_csv(args.input)

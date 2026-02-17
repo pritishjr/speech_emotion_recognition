@@ -73,8 +73,6 @@ pyparsing @ file:///home/conda/feedstock_root/build_artifacts/bld/rattler-build_
 PyQt5==5.15.11
 PyQt5-Qt5==5.15.18
 PyQt5_sip==12.18.0
-PyQt6==6.9.1
-PyQt6_sip @ file:///home/task_175751008951770/conda-bld/pyqt-split_1757511023622/work/pyqt_sip
 PySide6==6.9.2
 python-dateutil @ file:///croot/python-dateutil_1716495738603/work
 pyzmq @ file:///home/conda/feedstock_root/build_artifacts/bld/rattler-build_pyzmq_1757387012/work
@@ -82,7 +80,6 @@ requests==2.32.5
 scikit-learn==1.8.0
 scipy==1.17.0
 shiboken6==6.9.2
-sip @ file:///croot/sip_1756223371714/work
 six @ file:///home/conda/feedstock_root/build_artifacts/bld/rattler-build_six_1753199211/work
 soundfile==0.13.1
 soxr==1.0.0
@@ -92,6 +89,7 @@ threadpoolctl==3.6.0
 tomli @ file:///home/conda/feedstock_root/build_artifacts/bld/rattler-build_tomli_1768146676/work
 torch==2.10.0
 tornado @ file:///home/task_176599244276733/croot/tornado_1765992653467/work
+tqdm @ file:///home/task_177071870170071/croot/tqdm_1770719100139/work
 traitlets @ file:///home/conda/feedstock_root/build_artifacts/traitlets_1733367359838/work
 triton==3.6.0
 typing_extensions @ file:///home/conda/feedstock_root/build_artifacts/bld/rattler-build_typing_extensions_1756220668/work
