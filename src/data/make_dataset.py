@@ -93,7 +93,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "--output", 
         type=str, 
-        default="/data/interim/interim_data.csv", 
+        default="/data/interim/metadata.csv", 
         help="Path to the output directory where you want it to be."
     )
     
