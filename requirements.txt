@@ -1,4 +1,6 @@
+absl-py==2.4.0
 asttokens @ file:///home/conda/feedstock_root/build_artifacts/asttokens_1763409923949/work
+attrs==25.4.0
 audioread==3.1.0
 certifi==2026.1.4
 cffi==2.0.0
@@ -12,6 +14,7 @@ debugpy @ file:///home/conda/feedstock_root/build_artifacts/bld/rattler-build_de
 decorator @ file:///home/conda/feedstock_root/build_artifacts/decorator_1740384970518/work
 executing @ file:///home/conda/feedstock_root/build_artifacts/executing_1756729339227/work
 filelock==3.20.3
+flatbuffers==25.12.19
 fonttools @ file:///home/conda/feedstock_root/build_artifacts/fonttools_1765632549069/work
 fsspec==2026.1.0
 idna==3.11
@@ -20,6 +23,8 @@ ipympl==0.10.0
 ipython @ file:///home/conda/feedstock_root/build_artifacts/bld/rattler-build_ipython_1770040907/work
 ipython_pygments_lexers @ file:///home/conda/feedstock_root/build_artifacts/ipython_pygments_lexers_1737123620466/work
 ipywidgets==8.1.8
+jax==0.9.0.1
+jaxlib==0.9.0.1
 jedi @ file:///home/conda/feedstock_root/build_artifacts/jedi_1733300866624/work
 Jinja2==3.1.6
 joblib==1.5.3
@@ -33,6 +38,8 @@ llvmlite==0.46.0
 MarkupSafe==3.0.3
 matplotlib==3.10.8
 matplotlib-inline @ file:///home/conda/feedstock_root/build_artifacts/matplotlib-inline_1761214490209/work
+mediapipe==0.10.14
+ml_dtypes==0.5.4
 mpmath==1.3.0
 msgpack==1.1.2
 munkres==1.1.4
@@ -55,15 +62,20 @@ nvidia-nccl-cu12==2.27.5
 nvidia-nvjitlink-cu12==12.8.93
 nvidia-nvshmem-cu12==3.4.5
 nvidia-nvtx-cu12==12.8.90
+opencv-contrib-python==4.13.0.92
+opencv-python==4.10.0
+opencv-python-headless==4.10.0
+opt_einsum==3.4.0
 packaging @ file:///home/conda/feedstock_root/build_artifacts/bld/rattler-build_packaging_1769093650/work
 pandas @ file:///home/conda/feedstock_root/build_artifacts/bld/rattler-build_pandas_1769076306/work
 parso @ file:///home/conda/feedstock_root/build_artifacts/bld/rattler-build_parso_1770676243/work
 pexpect @ file:///home/conda/feedstock_root/build_artifacts/pexpect_1733301927746/work
-pillow @ file:///home/task_176252754139500/conda-bld/pillow_1762528238884/work
+pillow @ file:///croot/pillow_1738010226202/work
 platformdirs @ file:///home/conda/feedstock_root/build_artifacts/bld/rattler-build_platformdirs_1764950726/work
 ply @ file:///home/conda/feedstock_root/build_artifacts/ply_1733239724146/work
 pooch==1.9.0
 prompt_toolkit @ file:///home/conda/feedstock_root/build_artifacts/prompt-toolkit_1756321756983/work
+protobuf==4.25.8
 psutil @ file:///home/conda/feedstock_root/build_artifacts/bld/rattler-build_psutil_1769678156/work
 ptyprocess @ file:///home/conda/feedstock_root/build_artifacts/ptyprocess_1733302279685/work/dist/ptyprocess-0.7.0-py2.py3-none-any.whl#sha256=92c32ff62b5fd8cf325bec5ab90d7be3d2a8ca8c8a3813ff487a8d2002630d1f
 pure_eval @ file:///home/conda/feedstock_root/build_artifacts/pure_eval_1733569405015/work
@@ -73,14 +85,14 @@ pyparsing @ file:///home/conda/feedstock_root/build_artifacts/bld/rattler-build_
 PyQt5==5.15.11
 PyQt5-Qt5==5.15.18
 PyQt5_sip==12.18.0
-PySide6==6.9.2
 python-dateutil @ file:///croot/python-dateutil_1716495738603/work
 pyzmq @ file:///home/conda/feedstock_root/build_artifacts/bld/rattler-build_pyzmq_1757387012/work
 requests==2.32.5
 scikit-learn==1.8.0
 scipy==1.17.0
-shiboken6==6.9.2
+sip @ file:///croot/sip_1756223371714/work
 six @ file:///home/conda/feedstock_root/build_artifacts/bld/rattler-build_six_1753199211/work
+sounddevice==0.5.5
 soundfile==0.13.1
 soxr==1.0.0
 stack_data @ file:///home/conda/feedstock_root/build_artifacts/stack_data_1733569443808/work
