@@ -155,7 +155,9 @@ def main():
     df = pd.read_csv(args.input_csv)
     
     #creating a video-only dataset out of the complete metadata.
-    video_df = df[df['Sample_path'].str.endswith('.mp4')].copy()
+    # video_df = df[df['Sample_path'].str.endswith('.mp4')].copy()
+    
+    video_df = df[df['Sample_path'].astype(str).str.split('/').str[-1].str.match(r'^01-.*\.mp4$')].copy()
     
     #initializing the processor.
     processor = VideoProcessor(num_frames=15)

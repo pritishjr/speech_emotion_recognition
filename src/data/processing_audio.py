@@ -6,28 +6,33 @@ from pathlib import Path
 import pandas as pd
 import numpy as np
 from tqdm import tqdm #progress bar
-
-#processing every audio file and making 1D waveforms for each.
+from moviepy import VideoFileClip
+#processing every audio file form the AV and making 1D waveforms for each.
 #HuBERT takes 1D waveforms as input. Sampling Rate: 16k Hz
 
-def extracting_1d(sample_path, target_sr=16000):
+def extracting_1d(av_files_dir, target_sr=16000):
     
-    #loading the sample signal: (array,sampling rate)
-    signal, _ = librosa.load(sample_path, sr=target_sr)
+    av_sample = Path(av_files_dir) # a video+audio
     
-    #trimming the silence at 30dB: captures breath but trims silence.
-    #tuple(trimmed signal, index)
-    signal_trimmed, _ = librosa.effects.trim(signal, top_db=30)
+    #extracting the video:
+    av_video = VideoFileClip(str(av_sample))
     
-    #normalizing the input signals.
-    if np.std(signal_trimmed)>0:
+    #ripping the audio out:
+    audio_av = av_video.audio
+    #convert to 1d array:
+    audio_av = audio_av.to_soundarray()
+    
+    #converting to mono:
+    if (len(audio_av)>1):
+        audio_av = np.mean(audio_av, axis=1)
         
-        signal_norm = (signal_trimmed - np.mean(signal_trimmed)) / np.std(signal_trimmed)
-    else:
-        
-        signal_norm = signal_trimmed
+    #resampling to 16000Hz:
+    og_sr = av_video.audio.fps
+    audio_av = librosa.resample(y = audio_av, orig_sr=og_sr, target_sr=target_sr)
     
-    return signal_norm #1d array of the signal
+    av_video.close()
+    
+    return audio_av #1d tensor
 
 def main():
     
@@ -62,9 +67,13 @@ def main():
     #taking the metadata
     df = pd.read_csv(args.input)
     
-    #filtering out audio files.
-    audio_df = df[df['Sample_path'].str.endswith(".wav")].copy()
+    #filtering out audio files
+    # audio_df = df[df['Sample_path'].str.endswith(".wav")].copy()
     
+    #filtering out audio files from the av files:
+    audio_df = df[df['Sample_path'].astype(str).str.split('/').str[-1].str.match(r'^01-.*\.mp4$')].copy()
+    
+    # audio_df.head()
     #new processed samples path: 
     processed_paths = []
     
