@@ -18,7 +18,7 @@ import mediapipe as mp #Google Mediapipe Face Mesh Topology
 # we are extracting 15 equi-spaced frames per video sample.
 
 class VideoProcessor():
-    def __init__(self, target_size = (224,224), num_frames = 15):
+    def __init__(self, target_size = (224,224), num_frames = 32):
         self.target_size = target_size
         self.num_frames = num_frames
         
@@ -160,7 +160,7 @@ def main():
     video_df = df[df['Sample_path'].astype(str).str.split('/').str[-1].str.match(r'^01-.*\.mp4$')].copy()
     
     #initializing the processor.
-    processor = VideoProcessor(num_frames=15)
+    processor = VideoProcessor(num_frames=32)
     processed_paths = []
     
     print(f"Processing {len(video_df)} videos...")
