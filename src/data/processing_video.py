@@ -14,8 +14,8 @@ import mediapipe as mp #Google Mediapipe Face Mesh Topology
 
 #we need to perform frame resampling and synchronization so that the face pixels and attributes are confined to one particular region.
 
-#visual input for ViT (target): (15, 224, 224, 3)
-# we are extracting 15 equi-spaced frames per video sample.
+#visual input for ViT (target): (32, 224, 224, 3)
+# we are extracting 32 equi-spaced frames per video sample since that is what Vivit takes in as a standard.
 
 class VideoProcessor():
     def __init__(self, target_size = (224,224), num_frames = 32):
@@ -131,7 +131,7 @@ class VideoProcessor():
                 else:
                     return None 
                     
-        return np.array(frames_out) # Shape: (15, 224, 224, 3) (4D)
+        return np.array(frames_out) # Shape: (32, 224, 224, 3) (4D)
 
 def main():
     #creating a parser:
