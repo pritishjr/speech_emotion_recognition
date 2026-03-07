@@ -44,7 +44,7 @@ class VideoFeatureExtractor(nn.Module):
 def main():
 
     #taking only one batch, rest the same.
-    example = torch.randn(1, 32, 224, 224, 3) #channel first shape.
+    example = torch.randn(1, 32, 3, 224, 224)
     
     #loading the vivit pretrained model:
     logging.set_verbosity_info()
