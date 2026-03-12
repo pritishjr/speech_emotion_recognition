@@ -17,7 +17,7 @@ from transformers import HubertModel
 
 class HuBERTFeatureExtractor(nn.Module):
     
-    def __init__(self, pre_trained_model = 'facebook/hubert-base-ls960', freeze_cnn = True, freeze_layers = int):
+    def __init__(self, pre_trained_model = 'facebook/hubert-base-ls960', freeze_cnn = True, freeze_layers=0):
         super(HuBERTFeatureExtractor, self).__init__()
         
         #loading the model:
@@ -68,7 +68,7 @@ class HuBERTFeatureExtractor(nn.Module):
 def main():
     
     #input shape: (batch, 1-dimensional values)
-    input_example = torch.randn(1, 48000) #.npy
+    input_example = torch.randn(1, 64640) #.npy
     
     #load hubert model:
     logging.set_verbosity_info()

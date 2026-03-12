@@ -13,7 +13,7 @@ from transformers import logging
 
 class VideoFeatureExtractor(nn.Module):
     
-    def __init__(self, pretrained_model='google/vivit-b-16x2-kinetics400', freeze_layers = int):
+    def __init__(self, pretrained_model='google/vivit-b-16x2-kinetics400', freeze_layers = 0):
         super(VideoFeatureExtractor, self).__init__()
         
         #initializing the vivit model
