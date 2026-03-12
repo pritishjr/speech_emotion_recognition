@@ -12,8 +12,35 @@ import numpy as np
 from audio_model import HuBERTFeatureExtractor
 from video_model import VideoFeatureExtractor
 
+class WOMaskedClassifier(nn.Module):
+    def __init__(self, input_dim=1536, num_classes=8):
+        super(WOMaskedClassifier, self).__init__()
+        # Buffer for the mask (defaults to all 1s so it does nothing initially)
+        self.register_buffer('wo_mask', torch.ones(input_dim))
+        
+        self.mlp = nn.Sequential(
+            nn.Linear(input_dim, 512),
+            nn.BatchNorm1d(512),
+            nn.ReLU(),
+            nn.Dropout(0.4),
+            nn.Linear(512, num_classes)
+        )
+
+    def load_optimal_mask(self, mask_path):
+        #if there is a mask path then we load it in here
+        numpy_mask = np.load(mask_path)
+        #convert it to tensor
+        mask_tensor = torch.tensor(numpy_mask, dtype=torch.float32)
+        self.wo_mask.copy_(mask_tensor) #creating a copy
+        
+        print(f"Loaded WO Mask! Active features: {int(mask_tensor.sum().item())}/{self.wo_mask.shape[0]}")
+
+    def forward(self, x):
+        optimized_x = x * self.wo_mask
+        return self.mlp(optimized_x)
+
 class FusionModel(nn.Module):
-    def __init__(self, num_classes=8):
+    def __init__(self, num_classes=8, use_wo_mask=False, mask_path=None):
         super(FusionModel, self).__init__()
         
         self.audio_extractor = HuBERTFeatureExtractor()
@@ -31,14 +58,12 @@ class FusionModel(nn.Module):
             batch_first=True,
         )
         #concatenated vector = 1536 dim
-        self.classifier = nn.Sequential(
-            nn.Linear(1536,512),
-            nn.ReLU(),
-            nn.Dropout(0.3),
-            nn.Linear(512, num_classes)
-        )
+        self.classifier = WOMaskedClassifier(input_dim=1536, num_classes=num_classes)
         
-    def forward(self, audio_waveform, vid_frames):
+        if use_wo_mask and mask_path is not None:
+            self.classifier.load_optimal_mask(mask_path)
+            
+    def forward(self, audio_waveform, vid_frames, return_embeddings=False):
         
         # extracting the features from the raw data inputs.
         # HuBERT extractor currently returns pooled audio: (batch, 768),
@@ -68,14 +93,15 @@ class FusionModel(nn.Module):
         #concatenating the two vectors: (batch, 1536)
         combined_vector = torch.cat((v2a_pooled, a2v_pooled), dim=1)
         
+        if return_embeddings:
+            return combined_vector
         #final output:
         logits = self.classifier(combined_vector)
         
         return logits
     
 def main():
-    #test block:
-    
+    #testing block:
     model = FusionModel()
     
     video_dummy = torch.randn(4,32,3,224,224)
