@@ -84,6 +84,29 @@ class MultimodalData(Dataset):
         # keeping only samples where corresponding video exists
         self.filenames = [f for f in self.filenames if os.path.exists(os.path.join(video_dir, f))]
         
+        #split files
+        train_set, val_set, test_set = [], [], []
+        
+        for f in self.filenames:
+            actor_id = int(f.split('-')[6].split('.')[0])
+            
+            if actor_id <= 21:
+                train_set.append(f)
+            elif actor_id > 21 and actor_id <= 23:
+                val_set.append(f)
+            else:
+                test_set.append(f)
+        
+        if self.split == 'train':
+            self.filenames = train_set
+        elif self.split == 'val':
+            self.filenames = val_set
+        elif self.split == 'test':
+            self.filenames == test_set
+        else:
+            raise ValueError("Invalid Text entered. Enter one of the following: [train, val, test]")    
+        
+        
         #initializing the video augmentation to apply later:
         if self.split == 'train':
             self.video_transforms = video_augmentation()
@@ -110,7 +133,7 @@ class MultimodalData(Dataset):
         # converting the audio.npy file to torch tensor (important step)
         audio_tensor = torch.from_numpy(audio_np).float()
         if self.split == 'train':
-            audio_augmented = audio_augmentation(audio_tensor)
+            audio_tensor = audio_augmentation(audio_tensor)
 
         # updating our video data samples' dimensions to fit the model's requirements:
         # (frames, height, width, channels) -> (frames, channels, height, width)
@@ -122,7 +145,7 @@ class MultimodalData(Dataset):
             video_tensor = video_tensor / 255.0
             
         #applying our video_augmentation:
-        video_augmented = self.video_transforms(video_tensor)
+        video_tensor = self.video_transforms(video_tensor)
 
         # extracting the labels from the filename:
         parts = filename.split('-')  # a list
@@ -132,8 +155,8 @@ class MultimodalData(Dataset):
         emotion_label = torch.tensor(emotion_label - 1, dtype=torch.long)
 
         final = {
-            'audio': audio_augmented,
-            'video': video_augmented,
+            'audio': audio_tensor,
+            'video': video_tensor,
             'label': emotion_label,
             'filename': filename
         }
