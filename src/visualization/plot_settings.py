@@ -2,18 +2,15 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 from cycler import cycler
 
-colors = cycler(color=plt.get_cmap("tab10").colors)  # ["b", "r", "g"]
-# colors = cycler(color=["#282782", "r", "g"])
-
-mpl.style.use("ggplot")
-mpl.rcParams["figure.figsize"] = (20, 5)
-mpl.rcParams["axes.facecolor"] = "white"
-mpl.rcParams["axes.grid"] = True
-mpl.rcParams["grid.color"] = "lightgray"
-mpl.rcParams["axes.prop_cycle"] = colors
-mpl.rcParams["axes.linewidth"] = 1
-mpl.rcParams["xtick.color"] = "black"
-mpl.rcParams["ytick.color"] = "black"
-mpl.rcParams["font.size"] = 12
-mpl.rcParams["figure.titlesize"] = 25
-mpl.rcParams["figure.dpi"] = 100
+def global_plot_settings():
+    plt.rcParams.update({
+        "figure.figsize": (10, 6),
+        "figure.dpi": 150,
+        "font.family": "sans-serif",
+        "font.size": 12,
+        "axes.grid": True,
+        "grid.alpha": 0.3,
+        "legend.frameon": False,
+        "savefig.bbox": "tight",
+        "savefig.format": "png"
+    })

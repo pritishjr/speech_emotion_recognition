@@ -4,14 +4,11 @@ import pandas as pd
 
 import matplotlib
 # matplotlib.use('Qt5Agg')
-import src.visualization.plot_settings
+from plot_settings import global_plot_settings
 
 import matplotlib.pyplot as plt
 
 import librosa
-import os
-os.environ["CUDA_VISIBLE_DEVICES"] = "3"
-
 from pathlib import Path
 
 
