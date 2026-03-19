@@ -6,15 +6,16 @@ from config import DEVICE
 
 import os
 import argparse
-import numpy as np
 import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader
 import torch.optim as optim
 from torch.amp import GradScaler
 
-from src.models.fusion_model import FusionModel
-from src.data.load_dataset import MultimodalData, collate_fn
+# from .src.models import FusionModel
+# from .src.data import MultimodalData, collate_fn
+
+from src import *
 
 from tqdm import tqdm
 import wandb
@@ -25,14 +26,14 @@ def parse_args():
     parser = argparse.ArgumentParser("Training the Fusion Model:")
     parser.add_argument("--epochs", type=int, default=30, help="Number of epochs.")
     parser.add_argument("--lr", type=float, default=1e-4, help="Learning rate (float).")
-    parser.add_argument("--batch_size", type=int, default=4, help="Batch training size.")
+    parser.add_argument("--batch_size", type=int, default=1, help="Batch training size.")
     parser.add_argument("--weight_decay", type=float, default=1e-4, help="Weight decay for our AdamW optimizer.")
     parser.add_argument("--save_path", type=str, default='./models/base_model.pth', help="Saving the model (.pth) in a specific directory.")
     
     parser.add_argument("--audio_dir", type=str, default='./data/processed/audio', help="Directory of audio data.")
     parser.add_argument("--vid_dir", type=str, default='./data/processed/video', help="Directory of video data.")
     
-    args = parser.parse_args*()
+    args = parser.parse_args()
     return args
     
 def train(args):
@@ -66,7 +67,8 @@ def train(args):
         batch_size=batch_size,
         collate_fn=collate_fn,
         shuffle=True,
-        pin_memory=True
+        pin_memory=True,
+        drop_last=True
     )
     
     #initializing and loading the VALIDATION data:
@@ -98,8 +100,10 @@ def train(args):
     )
     
     #automatic mixed precision (AMP):
+    amp_enabled = DEVICE.type == "cuda" and torch.backends.cudnn.enabled
     scaler = GradScaler(
-        device=DEVICE
+        device=DEVICE.type,
+        enabled=amp_enabled
     )
     
     r"""
@@ -109,7 +113,7 @@ def train(args):
     for epoch in range(epochs):
         
         model.train()
-        training_loss = 0.0
+        running_loss = 0.0
         training_correct = 0
         training_total = 0
         
@@ -127,12 +131,16 @@ def train(args):
             attention_mask = batch['attention_mask'].to(DEVICE, non_blocking = True)
             labels = batch['label'].to(DEVICE, non_blocking = True)
             
-            optimizer.zero_grad()
+            optimizer.zero_grad(set_to_none=True)
             
             #converting the data to 16 float point.
-            with torch.autocast(device_type=DEVICE.type, dtype=torch.float16):
+            with torch.autocast(
+                device_type=DEVICE.type,
+                dtype=torch.float16,
+                enabled=amp_enabled
+            ):
                 # Update your model's forward pass to accept the HuBERT attention mask
-                logits = model(audio_data, vid_data, attention_mask)
+                logits = model(audio_data, vid_data, audio_attention_mask=attention_mask)
                 loss = criterion(logits, labels)
         
             scaler.scale(loss).backward()
@@ -189,8 +197,12 @@ def train(args):
                 video_frames = batch['video'].to(DEVICE, non_blocking=True)
                 labels = batch['label'].to(DEVICE, non_blocking=True)
 
-                with torch.autocast(device_type=DEVICE.type, dtype=torch.float16):
-                    logits = model(audio_waves, video_frames, attention_masks)
+                with torch.autocast(
+                    device_type=DEVICE.type,
+                    dtype=torch.float16,
+                    enabled=amp_enabled
+                ):
+                    logits = model(audio_waves, video_frames, audio_attention_mask=attention_masks)
                     loss = criterion(logits, labels)
                 
                 val_running_loss += loss.item()
@@ -229,8 +241,8 @@ def train(args):
     pass
 def main():
     
-    #args = parse_args()
-    #train(args)
-    pass
+    args = parse_args()
+    train(args)
+    
 if __name__ == "__main__":
     main()
