@@ -3,14 +3,14 @@ applying bi-directional cross-attention.
 takes out tokens from both the audio and video to form a 768+768 = 1536 dimensional vector.
 '''
 
+import os
 import torch
 import torch.nn as nn
-import os
 import numpy as np
 
 #importing the audio and video models for fusion.
-from audio_model import HuBERTFeatureExtractor
-from video_model import VideoFeatureExtractor
+from .audio_model import HuBERTFeatureExtractor
+from .video_model import VideoFeatureExtractor
 
 class WOMaskedClassifier(nn.Module):
     def __init__(self, input_dim=1536, num_classes=8):
@@ -20,7 +20,7 @@ class WOMaskedClassifier(nn.Module):
         
         self.mlp = nn.Sequential(
             nn.Linear(input_dim, 512),
-            nn.BatchNorm1d(512),
+            nn.LayerNorm(512),
             nn.ReLU(),
             nn.Dropout(0.4),
             nn.Linear(512, num_classes)
@@ -63,12 +63,15 @@ class FusionModel(nn.Module):
         if use_wo_mask and mask_path is not None:
             self.classifier.load_optimal_mask(mask_path)
             
-    def forward(self, audio_waveform, vid_frames, return_embeddings=False):
+    def forward(self, audio_waveform, vid_frames, audio_attention_mask=None, return_embeddings=False):
         
         # extracting the features from the raw data inputs.
         # HuBERT extractor currently returns pooled audio: (batch, 768),
         # so we add a singleton token dimension for attention: (batch, 1, 768).
-        audio_seq = self.audio_extractor(audio_waveform).unsqueeze(1)
+        audio_seq = self.audio_extractor(
+            audio_waveform,
+            attention_mask=audio_attention_mask,
+        ).unsqueeze(1)
         # ViViT extractor returns (sequence_output, pooled_output); we use sequence_output.
         video_seq = self.video_extractor(vid_frames)[0]
         
@@ -100,17 +103,60 @@ class FusionModel(nn.Module):
         
         return logits
     
+#configuring function (idk how important it is)
+def _configure_runtime_for_cpu_test():
+    """
+    Keep the `__main__` smoke-test from hanging on some Conda CPU stacks.
+
+    In this repo's `iopenv`, PyTorch loads OpenMP (`libgomp`) while NumPy / BLAS uses
+    an OpenBLAS build compiled with `USE_OPENMP=0` (pthreads). When BLAS gets called
+    from within an OpenMP parallel region, OpenBLAS can emit:
+
+        "Detect OpenMP Loop and this application may hang..."
+
+    Limiting BLAS + OpenMP threads to 1 avoids nested parallelism and the warning.
+    """
+
+    import os
+
+    os.environ.setdefault("OMP_NUM_THREADS", "1")
+    os.environ.setdefault("OPENBLAS_NUM_THREADS", "1")
+    os.environ.setdefault("MKL_NUM_THREADS", "1")
+    os.environ.setdefault("NUMEXPR_NUM_THREADS", "1")
+
+    try:
+        from threadpoolctl import threadpool_limits
+
+        threadpool_limits(limits=1)
+    except Exception:
+        pass
+
+    try:
+        import torch
+
+        torch.set_num_threads(1)
+        torch.set_num_interop_threads(1)
+    except Exception:
+        pass
+
+
+    
 def main():
+    _configure_runtime_for_cpu_test()
+
     #testing block:
-    model = FusionModel()
+    # model = FusionModel()
+    # model.eval()
     
-    video_dummy = torch.randn(4,32,3,224,224)
-    audio_dummy = torch.randn(4,64640)
+    # # Keep this small; ViViT on CPU is expensive.
+    # video_dummy = torch.randn(1, 32, 3, 224, 224)
+    # audio_dummy = torch.randn(1, 16000)
     
-    #predictions
-    output = model(audio_dummy, video_dummy)
+    # #predictions
+    # with torch.inference_mode():
+    #     output = model(audio_dummy, video_dummy)
     
-    print(f"predictions shape: {output.shape}")
+    # print(f"predictions shape: {output.shape}")
     
 if __name__ == "__main__":
     main()

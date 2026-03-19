@@ -5,6 +5,10 @@ output shape:   sequence/timeline: (batch, seq length, 768)
                 pooled: (batch, 768)
                 
 '''
+from huggingface_hub import login
+from config import hf_token
+if hf_token:
+    login(token = hf_token)
 
 import torch
 import torch.nn as nn
@@ -17,7 +21,7 @@ class VideoFeatureExtractor(nn.Module):
         super(VideoFeatureExtractor, self).__init__()
         
         #initializing the vivit model
-        self.vivit = VivitModel.from_pretrained(pretrained_model)
+        self.vivit = VivitModel.from_pretrained(pretrained_model, use_safetensors=True)
         
         #embeddings chop up the frames into tubeletes(3D)
         for param in self.vivit.embeddings.parameters():
@@ -44,22 +48,23 @@ class VideoFeatureExtractor(nn.Module):
 def main():
 
     #taking only one batch, rest the same.
-    example = torch.randn(1, 32, 3, 224, 224)
+    # example = torch.randn(1, 32, 3, 224, 224)
     
-    #loading the vivit pretrained model:
-    logging.set_verbosity_info()
-    print("Loading the ViViT model.")
-    model = VideoFeatureExtractor(freeze_layers=8)
+    # #loading the vivit pretrained model:
+    # logging.set_verbosity_info()
+    # print("Loading the ViViT model.")
+    # model = VideoFeatureExtractor(freeze_layers=8)
     
-    print("giving output for the example.")
-    seq_out , pool_out = model(example)
+    # print("giving output for the example.")
+    # seq_out , pool_out = model(example)
     
-    print(f"""
-          Checking the shapes:
-          input tensor shape (4D) : {example.shape}
-          seq_out shape: {seq_out.shape}
-          pool_out shape: {pool_out.shape}
-          """)
+    # print(f"""
+    #       Checking the shapes:
+    #       input tensor shape (4D) : {example.shape}
+    #       seq_out shape: {seq_out.shape}
+    #       pool_out shape: {pool_out.shape}
+    #       """)
+    
     pass
 
 if __name__ == "__main__":
