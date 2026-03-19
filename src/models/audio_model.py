@@ -70,20 +70,21 @@ class HuBERTFeatureExtractor(nn.Module):
 def main():
     
     #input shape: (batch, 1-dimensional values)
-    input_example = torch.randn(1, 64640) #.npy
+    # input_example = torch.randn(1, 64640) #.npy
     
-    #load hubert model:
-    logging.set_verbosity_info()
-    print("Loading the HuBERT Model. This may take a while...")
-    model = HuBERTFeatureExtractor(freeze_layers=8)
+    # #load hubert model:
+    # logging.set_verbosity_info()
+    # print("Loading the HuBERT Model. This may take a while...")
+    # model = HuBERTFeatureExtractor(freeze_layers=8)
     
-    #passing the example for the output:
-    output = model(input_example)
+    # #passing the example for the output:
+    # output = model(input_example)
     
-    #checking the shape of the inputs and outputs:
-    print(f"The shape of the input is: {input_example.shape}")
-    print(f"The shape of the output is : {output.shape}")
-    
+    # #checking the shape of the inputs and outputs:
+    # print(f"The shape of the input is: {input_example.shape}")
+    # print(f"The shape of the output is : {output.shape}")
+    pass
+
 if __name__ == "__main__":
     main()
     
