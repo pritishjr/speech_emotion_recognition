@@ -17,3 +17,5 @@ checks.ipynb
 
 config.py
 .env
+
+wandb
