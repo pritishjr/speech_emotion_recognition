@@ -19,3 +19,4 @@ config.py
 .env
 
 wandb
+models
