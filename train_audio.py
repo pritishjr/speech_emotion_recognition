@@ -28,7 +28,7 @@ try:
 except ImportError:
     wandb = None
 
-
+#creating the arguments for parsing:
 def parse_args():
     parser = argparse.ArgumentParser("Fine-tune HuBERT for audio emotion classification")
 
@@ -56,7 +56,7 @@ def parse_args():
 
     return parser.parse_args()
 
-
+#setting the randomness seed which remains consistent.
 def set_seed(seed):
     random.seed(seed)
     np.random.seed(seed)
@@ -64,14 +64,14 @@ def set_seed(seed):
     if torch.cuda.is_available():
         torch.cuda.manual_seed_all(seed)
 
-
+#extracting the emotion labels from the filenames.
 def parse_label_from_filename(filename):
     parts = filename.split("-")
     if len(parts) != 7:
         raise ValueError(f"Unexpected filename format: {filename}")
     return int(parts[2]) - 1
 
-
+#extracting the actor ID (label) from the filenames.
 def split_by_actor_id(filenames):
     train_set, val_set, test_set = [], [], []
     for fname in filenames:
@@ -88,10 +88,10 @@ def split_by_actor_id(filenames):
             test_set.append(fname)
     return train_set, val_set, test_set
 
-
+#performing "online" augmentation to the audio data.
 def audio_augmentation(waveform):
     # Add light Gaussian noise.
-    if torch.rand(1).item() > 0.5:
+    if torch.rand(1).item() > 0.5: #50% probability
         noise_scale = 0.003 * torch.rand(1).item()
         waveform = waveform + torch.randn_like(waveform) * noise_scale
 
@@ -100,9 +100,9 @@ def audio_augmentation(waveform):
         gain_db = torch.empty(1).uniform_(-6.0, 6.0).item()
         waveform = waveform * (10 ** (gain_db / 20.0))
 
-    return waveform
+    return waveform #returns the 1D .npy waveform.
 
-
+#initializing the dataset for the train/val/test split.
 class AudioEmotionDataset(Dataset):
     def __init__(self, audio_dir, split="train", use_augmentation=True):
         super().__init__()
@@ -117,6 +117,7 @@ class AudioEmotionDataset(Dataset):
         filenames = [f for f in os.listdir(audio_dir) if f.endswith(".npy")]
         train_set, val_set, test_set = split_by_actor_id(filenames)
 
+        #data split is done based on the actors IDs
         if split == "train":
             self.filenames = sorted(train_set)
         elif split == "val":
@@ -129,10 +130,10 @@ class AudioEmotionDataset(Dataset):
         if len(self.filenames) == 0:
             raise ValueError(f"No files found for split='{split}' in {audio_dir}")
 
-    def __len__(self):
+    def __len__(self): #len of object is no. of files in the data split.
         return len(self.filenames)
 
-    def __getitem__(self, idx):
+    def __getitem__(self, idx): #index gives the label and audio waveform
         filename = self.filenames[idx]
         audio_path = os.path.join(self.audio_dir, filename)
 
@@ -149,12 +150,13 @@ class AudioEmotionDataset(Dataset):
             "filename": filename,
         }
 
-
+#collecting the attributes of a sample.
 def collate_audio_fn(batch):
     audios = [item["audio"] for item in batch]
     labels = torch.stack([item["label"] for item in batch])
     filenames = [item["filename"] for item in batch]
 
+    #padding it to get a constant maximum length.
     padded_audios = pad_sequence(audios, batch_first=True, padding_value=0.0)
 
     attention_masks = torch.zeros((len(audios), padded_audios.shape[1]), dtype=torch.long)
@@ -168,7 +170,7 @@ def collate_audio_fn(batch):
         "filename": filenames,
     }
 
-
+#creatingg the classifier based on HuBERT feature extractor.
 class HuBERTClassifier(nn.Module):
     def __init__(self, num_classes=8, freeze_cnn=True, freeze_layers=0, dropout=0.3):
         super().__init__()
@@ -176,6 +178,8 @@ class HuBERTClassifier(nn.Module):
             freeze_cnn=freeze_cnn,
             freeze_layers=freeze_layers,
         )
+        
+        #mlp layer connecting the last layer of HuBERT.
         self.classifier = nn.Sequential(
             nn.LayerNorm(768),
             nn.Dropout(dropout),
@@ -189,7 +193,7 @@ class HuBERTClassifier(nn.Module):
         features = self.audio_backbone(audio_waveforms, attention_mask=attention_mask)
         return self.classifier(features)
 
-
+#calculating metrics for each epoch.
 def train_one_epoch(model, loader, criterion, optimizer, scaler, amp_enabled, max_grad_norm):
     model.train()
 
@@ -227,7 +231,7 @@ def train_one_epoch(model, loader, criterion, optimizer, scaler, amp_enabled, ma
 
     return running_loss / len(loader), correct / max(total, 1)
 
-
+#eval on val data per epoch.
 @torch.no_grad()
 def evaluate(model, loader, criterion, amp_enabled):
     model.eval()
@@ -258,7 +262,8 @@ def evaluate(model, loader, criterion, amp_enabled):
 
     return running_loss / len(loader), correct / max(total, 1)
 
-
+#training the model over N epochs and saving the model.
+#save: best hyyperparameters of the model on val data epoch checkpoint and final trained model (over entirety of the training data).
 def train_audio_model(args):
     set_seed(args.seed)
     print(f"Training on device: {DEVICE}")
@@ -308,6 +313,7 @@ def train_audio_model(args):
     Path(args.save_path).parent.mkdir(parents=True, exist_ok=True)
     Path(args.best_save_path).parent.mkdir(parents=True, exist_ok=True)
 
+    #check if wandb is installed. (run: pip install wandb)
     if args.wandb:
         if wandb is None:
             raise ImportError("wandb is not installed. Install it or run with --no-wandb.")
