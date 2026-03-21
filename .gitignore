@@ -1,7 +1,7 @@
 data/raw/
 data/processed/
 data/interim/
-/notebooks/test.ipynb
+notebooks
 settings.json
 test.py
 
@@ -20,3 +20,4 @@ config.py
 
 wandb
 models
+references
